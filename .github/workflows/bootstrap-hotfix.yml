@@ -31,12 +31,32 @@ jobs:
       - name: Apply hotfix
         run: python .github/scripts/bootstrap.py
 
+      - name: Install Homey CLI
+        run: npm install --global homey
+
+      - name: Generate app.json with Homey Compose
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp .homeycompose/app.json app.json
+          export HOMEY_CLI_ROOT="$(npm root -g)"
+          node <<'NODE'
+          const path = require('path');
+          const root = process.env.HOMEY_CLI_ROOT;
+          const App = require(path.join(root, 'homey/lib/App.js'));
+          const HomeyCompose = require(path.join(root, 'homey/lib/HomeyCompose.js'));
+          HomeyCompose.buildIfUsed(App, process.cwd())
+            .then(() => console.log('Generated app.json'))
+            .catch((err) => { console.error(err); process.exit(1); });
+          NODE
+
       - name: Commit hotfix tree
         run: |
           set -euo pipefail
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
+          git add -f app.json
           if git diff --cached --quiet; then
             echo 'No changes to commit.'
             exit 0
