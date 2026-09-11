@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+    paths:
+      - '.github/workflows/bootstrap-hotfix.yml'
+      - '.github/scripts/bootstrap.py'
   workflow_dispatch:
 
 permissions:
@@ -13,5 +16,30 @@ jobs:
   bootstrap:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - run: echo bootstrap-ok
+      - name: Checkout hotfix repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Import upstream app
+        run: |
+          set -euo pipefail
+          tmp="$(mktemp -d)"
+          git clone --depth 1 https://github.com/Doekse/esphome-homey.git "$tmp/upstream"
+          rsync -a --delete --exclude='.git/' --exclude='.github/' "$tmp/upstream/" ./
+
+      - name: Apply hotfix
+        run: python .github/scripts/bootstrap.py
+
+      - name: Commit hotfix tree
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          if git diff --cached --quiet; then
+            echo 'No changes to commit.'
+            exit 0
+          fi
+          git commit -m 'fix: guard non-finite ESPHome capability values'
+          git push origin HEAD:main
