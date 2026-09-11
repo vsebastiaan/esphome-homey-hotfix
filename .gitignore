@@ -1,0 +1,43 @@
+# Local Homey env (keep env.json.example)
+/env.json
+
+# Homey CLI build / compose output, all derived from .homeycompose
+/.homeybuild/
+/app.json
+/drivers/*/pair/
+/drivers/*/repair/
+
+# Homey Python runner (local/dev)
+/python-runner-dev.tar
+
+# Homey Python dependency cache (`homey app dependencies install`)
+/python_packages/
+
+# Local helper scripts (not part of the Homey app)
+/scripts/
+
+# Everything esphome-homey writes is committed on purpose. It is copied from an
+# installed homey-esphomedriver, so a stale sync tool can silently downgrade the
+# pair/repair views; tracking it makes that show up as a diff before publishing.
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+.ruff_cache/
+
+# Node (Homey tooling)
+/node_modules/
+
+# IDEs / editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
