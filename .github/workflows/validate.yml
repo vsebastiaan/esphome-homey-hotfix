@@ -18,5 +18,7 @@ jobs:
         run: python -m py_compile app.py
       - name: Install Homey CLI
         run: npm install --global homey
+      - name: Build Homey app
+        run: homey app build
       - name: Validate Homey app
-        run: homey app validate
+        run: homey app validate --level debug
