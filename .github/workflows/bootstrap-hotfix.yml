@@ -30,8 +30,10 @@ jobs:
             "$tmp/upstream/" ./
 
       - name: Apply NaN/Infinity safety hotfix
-        shell: python
+        shell: bash
         run: |
+          set -euo pipefail
+          python - <<'PY'
           from pathlib import Path
           import json
 
@@ -72,6 +74,7 @@ AbstractEntityStateUpdateHandler.set_capability_value = _safe_set_capability_val
               manifest_path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + '\n')
 
           Path('HOTFIX.md').write_text('''# Homey ESPHome climate non-finite value hotfix\n\nThis tree is based on `Doekse/esphome-homey`.\n\n## Why\n\nESPHome climate entities may report `NaN` before a first valid temperature or humidity measurement. Homey SHS transports app capability values through strict JSON and crashes when the app emits literal `NaN`.\n\n## Temporary fix\n\n`app.py` guards the shared ESPHome state capability writer and drops all non-finite floats (`NaN`, `Infinity`, `-Infinity`) before they enter Homey IPC. Finite values are passed through unchanged.\n\nThe app id remains `io.esphome`, so a development install upgrades/replaces the existing app in place. Version is bumped to `0.4.3` for this hotfix.\n''')
+          PY
 
       - name: Commit imported app and hotfix
         shell: bash
