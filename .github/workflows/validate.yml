@@ -18,9 +18,5 @@ jobs:
         run: python -m py_compile app.py
       - name: Install Homey CLI
         run: npm install --global homey
-      - name: Seed generated app.json for Homey Compose
-        run: cp .homeycompose/app.json app.json
-      - name: Build Homey app
-        run: homey app build
-      - name: Validate Homey app
+      - name: Validate generated Homey app
         run: homey app validate --level debug
