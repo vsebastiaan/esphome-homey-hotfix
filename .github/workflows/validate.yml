@@ -20,6 +20,8 @@ jobs:
           platforms: arm64
       - name: Python syntax check
         run: python -m py_compile app.py
+      - name: Run hotfix regression tests
+        run: python -m unittest discover -s tests -v
       - name: Install Homey CLI
         run: npm install --global homey
       - name: Validate generated Homey app
